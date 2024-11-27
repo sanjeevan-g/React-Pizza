@@ -8,9 +8,23 @@ import {
   formatDate,
 } from "../../utils/helpers";
 import OrderItem from "./OrderItem";
+import { useFetcher } from "react-router-dom";
+import { useEffect } from "react";
+import UpdateOrder from "./UpdateOrder";
 
 function Order() {
   const order = useLoaderData();
+
+  // with fetcher obj, we can load data from other routes (loader data)
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    // similar to navigation, fetcher has 2 state idle, loading, submitting
+    if (fetcher.state === "idle" && !fetcher.data) {
+      fetcher.load("/menu");
+    }
+  }, [fetcher]);
+
   // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
   const {
     id,
@@ -53,7 +67,15 @@ function Order() {
 
       <ul className="divide-y divide-stone-200 border-b border-t border-stone-200">
         {cart.map((item) => (
-          <OrderItem item={item} key={item.pizzaId} />
+          <OrderItem
+            item={item}
+            key={item.pizzaId}
+            ingredients={
+              fetcher?.data?.find((elm) => elm.id === item.pizzaId)
+                .ingredients ?? []
+            }
+            isLoadingIngredients={fetcher.state === "loading"}
+          />
         ))}
       </ul>
 
@@ -70,6 +92,7 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
+      {!priority && <UpdateOrder />}
     </div>
   );
 }

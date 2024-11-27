@@ -5,8 +5,6 @@ import MenuItem from "./MenuItem";
 function Menu() {
   const data = useLoaderData();
 
-  console.log(data);
-
   return (
     <ul className="divide-y divide-stone-200 px-2">
       {data.map((pizza) => (
@@ -16,9 +14,11 @@ function Menu() {
   );
 }
 
+Menu.loader = loader;
+
 export default Menu;
 
-export async function loader() {
+async function loader() {
   const data = await getMenu();
 
   return data;
